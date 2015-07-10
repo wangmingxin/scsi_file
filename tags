@@ -1,0 +1,35 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+DEF_TIMEOUT	src/ody_scsi_ptcmd.linux.c	3;"	d	file:
+DSJ_CMD_TYPE_CLOSEFILE_BYHANDLE	include/ody_scsi_pt.h	10;"	d
+DSJ_CMD_TYPE_GETFILESIZE_BYHANDLEE	include/ody_scsi_pt.h	14;"	d
+DSJ_CMD_TYPE_GET_FILEHANDLE_BYID	include/ody_scsi_pt.h	9;"	d
+DSJ_CMD_TYPE_GET_ID	include/ody_scsi_pt.h	7;"	d
+DSJ_CMD_TYPE_READ_BYHANDLE	include/ody_scsi_pt.h	11;"	d
+DSJ_CMD_TYPE_SET_FILENAME_BYID	include/ody_scsi_pt.h	8;"	d
+DSJ_CMD_TYPE_TRUNCATE_BYFILENAME	include/ody_scsi_pt.h	13;"	d
+DSJ_CMD_TYPE_WRITE_BYHANDLE	include/ody_scsi_pt.h	12;"	d
+MK_CMD_GETTASKID_16	include/ody_scsi_pt.h	16;"	d
+MK_CMD_SETFILENAME_16	include/ody_scsi_pt.h	34;"	d
+ODY_SCSI_FILE_H	include/ody_scsi_file.h	2;"	d
+ODY_SCSI_PT_H	include/ody_scsi_pt.h	2;"	d
+SCSI_FILE_MAX_LEN	include/ody_scsi_file.h	13;"	d
+SCSI_FILE_OPEN_READONLY	include/ody_scsi_file.h	10;"	d
+SCSI_FILE_OPEN_WRITE	include/ody_scsi_file.h	11;"	d
+fc_file	include/ody_scsi_file.h	/^typedef struct fc_file {$/;"	s
+fc_file_t	include/ody_scsi_file.h	/^}fc_file_t;$/;"	t	typeref:struct:fc_file
+fc_open	src/ody_scsi_file.c	/^fc_file_t * fc_open(const char *pathname, int flag, mode_t mode)$/;"	f
+file_length	include/ody_scsi_file.h	/^	off_t file_length;$/;"	m	struct:fc_file
+initlib	src/ody_scsi_file.c	/^int initlib(char * devfilename)$/;"	f
+ody_scsi_dev_conf	include/ody_scsi_file.h	/^static char ody_scsi_dev_conf [1024];$/;"	v
+ody_scsi_dev_fd	include/ody_scsi_file.h	/^static int ody_scsi_dev_fd =0;$/;"	v
+ody_scsi_get_taskid	src/ody_scsi_ptcmd.linux.c	/^int ody_scsi_get_taskid(int fd)$/;"	f
+ody_scsi_get_taskret	src/ody_scsi_ptcmd.linux.c	/^int ody_scsi_get_taskret(int fd,int taskid)$/;"	f
+ody_scsi_open_file	src/ody_scsi_ptcmd.linux.c	/^scsi_handle_t ody_scsi_open_file(int fd, char * filename, int taskid)$/;"	f
+open_flag	include/ody_scsi_file.h	/^	int open_flag;$/;"	m	struct:fc_file
+pos	include/ody_scsi_file.h	/^	off_t pos;$/;"	m	struct:fc_file
+scsi_handle	include/ody_scsi_file.h	/^	scsi_handle_t scsi_handle;$/;"	m	struct:fc_file
