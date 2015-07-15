@@ -180,6 +180,7 @@ int ody_scsi_read_cmd(int fd, scsi_handle_t handle, void * buf, off_t pos, int s
 	unsigned char sense_buffer[32];
 	int res;
 	MK_CMD_READ16(CmdBlk, handle, pos, size);
+//	PRINTCMD16(CmdBlk);
 
 	struct sg_io_hdr io_hdr;
 	memset(&io_hdr, 0, sizeof(struct sg_io_hdr));
@@ -311,6 +312,7 @@ int ody_scsi_truncate_cmd(int fd, char* filename, unsigned long long length)
 	unsigned char buff [512] ;	
 	unsigned char sense_buffer[32];
 	MK_CMD_TRUNCATE16(CmdBlk, length);
+	PRINTCMD16(CmdBlk);
 
 	struct sg_io_hdr io_hdr;
 	memset(&io_hdr, 0, sizeof(struct sg_io_hdr));

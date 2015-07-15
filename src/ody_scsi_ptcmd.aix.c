@@ -15,11 +15,12 @@ int ody_scsi_get_taskid(int fd)
 	unsigned char CmdBlk [16] ;	
 	unsigned char buff [4] ;	
 	unsigned char sense_buffer[32];
-	int sbyte;
+	int sbyte=0;
 	MK_CMD_GETTASKID16(CmdBlk);
 
 	scmd_t scmd;
 	scmd.cdb = CmdBlk;
+	scmd.cdblen = 16;
 
 	scmd.data_buf = buff;
 	scmd.datalen = sizeof(buff);
@@ -45,20 +46,21 @@ int ody_scsi_get_taskret(int fd,int taskid, void * buff, int buflen)
 {
 	unsigned char CmdBlk [16] ;	
 	unsigned char sense_buffer[32];
-	int sbyte;
+	int sbyte=0;
 
 	MK_CMD_GETTASKRES16(CmdBlk, (taskid&0xff));
 	memset(sense_buffer, 0, sizeof(sense_buffer));
 
 	scmd_t scmd;
 	scmd.cdb = CmdBlk;
+	scmd.cdblen = 16;
 
 	scmd.data_buf = buff;
 	scmd.datalen = buflen;
 	scmd.sense_buf = sense_buffer;
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
-	scmd.rw = 0;
+	scmd.rw = 1;
 	scmd.timeval = DEF_TIMEOUT;
 
 	if (ioctl(fd, GSC_CMD, (caddr_t) &scmd) < 0) {
@@ -84,6 +86,7 @@ scsi_handle_t ody_scsi_open_file(int fd, const char * filename, int taskid)
 
 	scmd_t scmd;
 	scmd.cdb = CmdBlk;
+	scmd.cdblen = 16;
 
 	memset(buff, 0, sizeof(buff));
 	memset(sense_buffer, 0, sizeof(sense_buffer));
@@ -94,7 +97,7 @@ scsi_handle_t ody_scsi_open_file(int fd, const char * filename, int taskid)
 	scmd.sense_buf = sense_buffer;
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
-	scmd.rw = 1;
+	scmd.rw = 0;
 	scmd.timeval = DEF_TIMEOUT;
 
 	if (ioctl(fd, GSC_CMD, (caddr_t) &scmd) < 0) {
@@ -112,7 +115,7 @@ scsi_handle_t ody_scsi_open_file(int fd, const char * filename, int taskid)
 	scmd.sense_buf = sense_buffer;
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
-	scmd.rw = 0;
+	scmd.rw = 1;
 	scmd.timeval = DEF_TIMEOUT;
 	if (ioctl(fd, GSC_CMD, (caddr_t) &scmd) < 0) {
 		perror("ody_scsi_open_file get taskret error");
@@ -136,13 +139,14 @@ int ody_scsi_read_cmd(int fd, scsi_handle_t handle, void * buf, off_t pos, int s
 
 	scmd_t scmd;
 	scmd.cdb = CmdBlk;
+	scmd.cdblen = 16;
 
 	scmd.data_buf = buf;
 	scmd.datalen = size;
 	scmd.sense_buf = sense_buffer;
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
-	scmd.rw = 0;
+	scmd.rw = 1;
 	scmd.timeval = DEF_TIMEOUT;
 
 	while (((res = ioctl(fd, GSC_CMD, (caddr_t)&scmd)) < 0) && (EINTR == errno));
@@ -165,13 +169,14 @@ int ody_scsi_write_cmd(int fd, scsi_handle_t handle,off_t pos, const void * buf,
 
 	scmd_t scmd;
 	scmd.cdb = CmdBlk;
+	scmd.cdblen = 16;
 
 	scmd.data_buf = buf;
 	scmd.datalen = writesize;
 	scmd.sense_buf = sense_buffer;
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
-	scmd.rw = 1;
+	scmd.rw = 0;
 	scmd.timeval = DEF_TIMEOUT;
 
 	while (((res = ioctl(fd, GSC_CMD, (caddr_t)&scmd)) < 0) && (EINTR == errno));
@@ -193,13 +198,14 @@ unsigned long long  ody_scsi_getsize_cmd(int fd, scsi_handle_t handle)
 	MK_CMD_GETSIZE16(CmdBlk, handle);
 	scmd_t scmd;
 	scmd.cdb = CmdBlk;
+	scmd.cdblen = 16;
 
 	scmd.data_buf = buff;
 	scmd.datalen = sizeof(buff);
 	scmd.sense_buf = sense_buffer;
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
-	scmd.rw = 0;
+	scmd.rw = 1;
 	scmd.timeval = DEF_TIMEOUT;
 
 	if (ioctl(fd, GSC_CMD, (caddr_t) &scmd) < 0) {
@@ -210,6 +216,7 @@ unsigned long long  ody_scsi_getsize_cmd(int fd, scsi_handle_t handle)
 		fprintf(stderr, "error: getsize sense/ASC/ASCQ = %d/%02x/%02x\n", sbyte, sense_buffer[12], sense_buffer[13]);
 		return -1;
 	}
+	PRINTCMD8(buff);
 
 	return (uint64_t) buff[0] << 56 | (uint64_t) buff[1] << 48 | (uint64_t) buff[2] << 40 | (uint64_t) buff[3]<<32 | buff[4]<<24 |buff[5]<<16 |buff[6]<<8 |buff[7];
 }
@@ -228,13 +235,14 @@ int ody_scsi_truncate_cmd(int fd, char* filename, unsigned long long length)
 
 	scmd_t scmd;
 	scmd.cdb = CmdBlk;
+	scmd.cdblen = 16;
 
 	scmd.data_buf = buff;
 	scmd.datalen = sizeof(buff);
 	scmd.sense_buf = sense_buffer;
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
-	scmd.rw = 1;
+	scmd.rw = 0;
 	scmd.timeval = DEF_TIMEOUT;
 
 	if (ioctl(fd, GSC_CMD, (caddr_t) &scmd) < 0) {
@@ -257,13 +265,14 @@ int ody_scsi_close_cmd(int fd, scsi_handle_t handle)
 
 	scmd_t scmd;
 	scmd.cdb = CmdBlk;
+	scmd.cdblen = 16;
 
 	scmd.data_buf = NULL;
 	scmd.datalen = 0;
 	scmd.sense_buf = sense_buffer;
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
-	scmd.rw = 0;
+	scmd.rw = 1;
 	scmd.timeval = DEF_TIMEOUT;
 
 	if (ioctl(fd, GSC_CMD, (caddr_t) &scmd) < 0) {

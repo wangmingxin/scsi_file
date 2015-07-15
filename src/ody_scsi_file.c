@@ -103,6 +103,9 @@ int fc_read(fc_file_t *file, void *buf, size_t count)
 		return -1;
 	}
 
+	if(file->pos >= file->file_length)
+		return 0;
+
 	if(file->pos + count > file->file_length ){
 		read_count = file->file_length - file->pos;
 	} 

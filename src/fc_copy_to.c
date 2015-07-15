@@ -7,7 +7,7 @@
 
 static void usage()
 {
-	fprintf(stderr,"Usage: fc_truncate sg_dev_path filename filelen\n");
+	fprintf(stderr,"Usage: fc_copy_to sg_dev_path localfile remotefile\n");
 	return ;
 }
 
@@ -27,23 +27,39 @@ int main(int argc, char * argv[])
 		usage();
 		return -1;
 	}
+	int from = -1;
 	
 	if(initlib(argv[1])<0){
 		perror("initlib error\n");
 		return -1;
 	}
 
-	fc_truncate(argv[2],atoll(argv[3]));
-
-/*
-	file = fc_open(argv[2], SCSI_FILE_OPEN_READONLY,0);
+	file = fc_open(argv[3], SCSI_FILE_OPEN_WRITE,0);
 	if(file == NULL){
 		perror("cannot open file");
 		return -1;
 	}
+
+	from = open(argv[2],O_RDWR);
+
+	if(from <0){
+		perror("open localfile to read error");
+	}
+	
+	char buff[64*1024];
+	int writesize=0;
+	int read_size=0;
+	
+	while((read_size=read(from, buff, sizeof(buff)))>0){
+		writesize = fc_write(file, buff, read_size);
+		if(writesize <=0){
+			fprintf(stderr,"fc_write writesize=%d \n",writesize);
+			break;
+		}
+	}
 	
 	print_fc_file(file);
+	close(from);
 
 	return fc_close(file);
-*/
 }
