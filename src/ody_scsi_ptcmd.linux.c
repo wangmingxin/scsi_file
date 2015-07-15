@@ -174,7 +174,7 @@ scsi_handle_t ody_scsi_open_file(int fd, const char * filename, int taskid)
 	return buff[0];	
 }
 
-int ody_scsi_read_cmd(int fd, scsi_handle_t handle, void * buf, off_t pos, int size)
+int ody_scsi_read_cmd(int fd, scsi_handle_t handle, void * buf, off64_t pos, int size)
 {
 	unsigned char CmdBlk [16] ;	
 	unsigned char sense_buffer[32];
@@ -219,7 +219,7 @@ int ody_scsi_read_cmd(int fd, scsi_handle_t handle, void * buf, off_t pos, int s
 	}
 
 }
-int ody_scsi_write_cmd(int fd, scsi_handle_t handle,off_t pos, const void * buf, int writesize)
+int ody_scsi_write_cmd(int fd, scsi_handle_t handle,off64_t pos, const void * buf, int writesize)
 {
 	unsigned char CmdBlk [16] ;	
 	unsigned char sense_buffer[32];

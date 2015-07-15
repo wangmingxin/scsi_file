@@ -21,8 +21,8 @@ typedef unsigned char scsi_handle_t;
 struct fc_file {
 	int open_flag;
 	scsi_handle_t scsi_handle;
-	off_t file_length;
-	off_t pos;
+	off64_t file_length;
+	off64_t pos;
 } ;
 typedef struct fc_file fc_file_t;
 
@@ -34,7 +34,7 @@ extern fc_file_t * fc_open(const char *pathname, int flags, mode_t mode);
 
 extern int fc_close(fc_file_t *);
 //关闭文件
-off_t fc_lseek(fc_file_t *, int64_t offset, int whence);
+off64_t fc_lseek(fc_file_t *, int64_t offset, int whence);
 //文件读写定位
 int fc_read(fc_file_t *, void *buf, size_t count);
 

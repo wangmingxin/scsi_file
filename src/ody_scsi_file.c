@@ -65,9 +65,9 @@ int fc_close(fc_file_t * fc_file)
 	return ret;
 }
 
-off_t fc_lseek(fc_file_t * file, int64_t offset, int whence)
+off64_t fc_lseek(fc_file_t * file, int64_t offset, int whence)
 {
-	off_t pos;
+	off64_t pos;
 	if(file == NULL){
 		return -1;
 	}
