@@ -158,6 +158,28 @@ cmd[13] = 512  &0xff;			\
 cmd[14] = 0x00;		\
 cmd[15] = 0x00;			
 
+#ifdef DEBUG
+#define PRINTCMD16(cmd) \
+printf("%02x",cmd[0]); \
+printf("%02x",cmd[1]); \
+printf("%02x",cmd[2]); \
+printf("%02x",cmd[3]); \
+printf("%02x",cmd[4]); \
+printf("%02x",cmd[5]); \
+printf("%02x",cmd[6]); \
+printf("%02x",cmd[7]); \
+printf("%02x",cmd[8]); \
+printf("%02x",cmd[9]); \
+printf("%02x",cmd[10]); \
+printf("%02x",cmd[11]); \
+printf("%02x",cmd[12]); \
+printf("%02x",cmd[13]); \
+printf("%02x",cmd[14]); \
+printf("%02x\n",cmd[15]); 
+#else
+#define PRINTCMD16(cmd)
+#endif
+
 int ody_scsi_get_taskid(int fd);
 int ody_scsi_get_taskret(int fd,int taskid, void * buff, int buflen);
 scsi_handle_t ody_scsi_open_file(int fd,const char *, int taskid);
