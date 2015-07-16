@@ -4,8 +4,6 @@
 extern "C" {
 #endif
 
-static char ody_scsi_dev_conf [1024];
-static int ody_scsi_dev_fd =0;
 
 #define SCSI_FILE_OPEN_READONLY 	1
 #define SCSI_FILE_OPEN_WRITE		2

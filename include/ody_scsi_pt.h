@@ -192,11 +192,12 @@ printf("%02x",cmd[7]);
 #define PRINTCMD8(cmd)
 #endif
 
+
 int ody_scsi_get_taskid(int fd);
 int ody_scsi_get_taskret(int fd,int taskid, void * buff, int buflen);
 scsi_handle_t ody_scsi_open_file(int fd,const char *, int taskid);
-int ody_scsi_read_cmd(int fd, scsi_handle_t handle,void * buf, off_t pos, int size);
-int ody_scsi_write_cmd(int fd, scsi_handle_t handle,off_t pos, const void * buf, int writesize);
+int ody_scsi_read_cmd(int fd, scsi_handle_t handle,void * buf, off64_t pos, int size);
+int ody_scsi_write_cmd(int fd, scsi_handle_t handle,off64_t pos, const void * buf, int writesize);
 unsigned long long  ody_scsi_getsize_cmd(int fd, scsi_handle_t handle);
 int ody_scsi_truncate_cmd(int fd, char* filename, unsigned long long length);
 int ody_scsi_close_cmd(int fd, scsi_handle_t handle);

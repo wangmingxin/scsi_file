@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <string.h>
+#include <sys/ioctl.h>
 #include <scsi/sg_linux_inc.h>
 #include <scsi/sg_lib.h>
 #include "ody_scsi_file.h"
@@ -11,6 +13,16 @@
 
 #define DEF_TIMEOUT 	20000		/* 20000 millisecs == 20 seconds */
 
+static void DUMPBUF(unsigned char *buf, int buflen)
+{
+	int k;
+	for (k = 0; k < buflen; ++k) {
+		if ((k > 0) && (0 == (k % 8)))
+			fprintf(stderr,"\n  ");
+		fprintf(stderr,"0x%02x ", buf[k]);
+	}
+	fprintf(stderr,"\n ");
+}
 int ody_scsi_get_taskid(int fd)
 {
 	unsigned char CmdBlk [16] ;	
@@ -43,14 +55,9 @@ int ody_scsi_get_taskid(int fd)
 	 /* now for the error processing */
     if ((io_hdr.info & SG_INFO_OK_MASK) != SG_INFO_OK) {
         if (io_hdr.sb_len_wr > 0) {
-		int k;
-		printf("get taskid sense data: ");
-		for (k = 0; k < io_hdr.sb_len_wr; ++k) {
-			if ((k > 0) && (0 == (k % 10)))
-				printf("\n  ");
-			printf("0x%02x ", sense_buffer[k]);
-		}
-		
+		fprintf(stderr,"get taskid sense data: ");
+		DUMPBUF(sense_buffer, io_hdr.sb_len_wr);
+
         }
 	perror("get taskid error");
 	return -1;
@@ -84,13 +91,8 @@ int ody_scsi_get_taskret(int fd,int taskid, void * buff, int buflen)
 	}
 	if ((io_hdr.info & SG_INFO_OK_MASK) != SG_INFO_OK) {
 		if (io_hdr.sb_len_wr > 0) {
-			int k;
-			printf("get taskret sense data: ");
-			for (k = 0; k < io_hdr.sb_len_wr; ++k) {
-				if ((k > 0) && (0 == (k % 10)))
-					printf("\n  ");
-				printf("0x%02x ", sense_buffer[k]);
-			}
+			fprintf(stderr,"get taskret sense data: ");
+			DUMPBUF(sense_buffer, io_hdr.sb_len_wr);
 		}
 		perror("set file name error");
 		return -1;
@@ -103,7 +105,6 @@ scsi_handle_t ody_scsi_open_file(int fd, const char * filename, int taskid)
 	unsigned char CmdBlk [16] ;	
 	unsigned char buff [512] ;	
 	unsigned char sense_buffer[32];
-	int res;
 
 	printf ("ody_scsi_open_file open %s, taskid=%d\n",filename, taskid);
 	MK_CMD_SETFILENAME16(CmdBlk, taskid);
@@ -112,7 +113,7 @@ scsi_handle_t ody_scsi_open_file(int fd, const char * filename, int taskid)
 	memset(&io_hdr, 0, sizeof(struct sg_io_hdr));
 	memset(buff, 0, sizeof(buff));
 	memset(sense_buffer, 0, sizeof(sense_buffer));
-	snprintf(buff, sizeof(buff)-1,"%s", filename);
+	snprintf((char*)buff, sizeof(buff)-1,"%s", filename);
 
 	io_hdr.interface_id = 'S';
 	io_hdr.cmd_len = sizeof(CmdBlk) ;
@@ -130,13 +131,9 @@ scsi_handle_t ody_scsi_open_file(int fd, const char * filename, int taskid)
 	}
 	if ((io_hdr.info & SG_INFO_OK_MASK) != SG_INFO_OK) {
 		if (io_hdr.sb_len_wr > 0) {
-			int k;
-			printf("openfile sense data: ");
-			for (k = 0; k < io_hdr.sb_len_wr; ++k) {
-				if ((k > 0) && (0 == (k % 10)))
-					printf("\n  ");
-				printf("0x%02x ", sense_buffer[k]);
-			}
+			fprintf(stderr,"openfile sense data: ");
+			DUMPBUF(sense_buffer, io_hdr.sb_len_wr);
+			
 		}
 		perror("set file name error");
 		return 0;
@@ -160,13 +157,8 @@ scsi_handle_t ody_scsi_open_file(int fd, const char * filename, int taskid)
 	}
 	if ((io_hdr.info & SG_INFO_OK_MASK) != SG_INFO_OK) {
 		if (io_hdr.sb_len_wr > 0) {
-			int k;
-			printf("get taskreturn sense data: ");
-			for (k = 0; k < io_hdr.sb_len_wr; ++k) {
-				if ((k > 0) && (0 == (k % 10)))
-					printf("\n  ");
-				printf("0x%02x ", sense_buffer[k]);
-			}
+			fprintf(stderr,"get taskreturn sense data: ");
+			DUMPBUF(sense_buffer, io_hdr.sb_len_wr);
 		}
 		perror("get filehandle error");
 		return 0;
@@ -267,7 +259,6 @@ unsigned long long  ody_scsi_getsize_cmd(int fd, scsi_handle_t handle)
 	unsigned char CmdBlk [16] ;	
 	unsigned char buff [8] ;	
 	unsigned char sense_buffer[32];
-	int res;
 	MK_CMD_GETSIZE16(CmdBlk, handle);
 
 	struct sg_io_hdr io_hdr;
@@ -291,13 +282,8 @@ unsigned long long  ody_scsi_getsize_cmd(int fd, scsi_handle_t handle)
 	 /* now for the error processing */
     if ((io_hdr.info & SG_INFO_OK_MASK) != SG_INFO_OK) {
         if (io_hdr.sb_len_wr > 0) {
-		int k;
-		printf("get filesize sense data: ");
-		for (k = 0; k < io_hdr.sb_len_wr; ++k) {
-			if ((k > 0) && (0 == (k % 10)))
-				printf("\n  ");
-			printf("0x%02x ", sense_buffer[k]);
-		}
+		fprintf(stderr,"get filesize sense data: ");
+		DUMPBUF(sense_buffer, io_hdr.sb_len_wr);
 	}
 	perror("get file size error");
 	return -1;
@@ -318,7 +304,7 @@ int ody_scsi_truncate_cmd(int fd, char* filename, unsigned long long length)
 	memset(&io_hdr, 0, sizeof(struct sg_io_hdr));
 	memset(buff, 0, sizeof(buff));
 	memset(sense_buffer, 0, sizeof(sense_buffer));
-	snprintf(buff, sizeof(buff)-1,"%s", filename);
+	snprintf((char*)buff, sizeof(buff)-1,"%s", filename);
 
 	io_hdr.interface_id = 'S';
 	io_hdr.cmd_len = sizeof(CmdBlk) ;
@@ -336,13 +322,8 @@ int ody_scsi_truncate_cmd(int fd, char* filename, unsigned long long length)
 	}
 	if ((io_hdr.info & SG_INFO_OK_MASK) != SG_INFO_OK) {
 		if (io_hdr.sb_len_wr > 0) {
-			int k;
-			printf("get truncate sense data: ");
-			for (k = 0; k < io_hdr.sb_len_wr; ++k) {
-				if ((k > 0) && (0 == (k % 10)))
-					printf("\n  ");
-				printf("0x%02x ", sense_buffer[k]);
-			}
+			fprintf(stderr,"get truncate sense data: ");
+			DUMPBUF(sense_buffer, io_hdr.sb_len_wr);
 		}
 		perror("truncate file error");
 		return -1;
@@ -355,7 +336,6 @@ int ody_scsi_close_cmd(int fd, scsi_handle_t handle)
 	unsigned char CmdBlk [16] ;	
 	unsigned char buff [4] ;	
 	unsigned char sense_buffer[32];
-	int res;
 	MK_CMD_CLOSEFILE16(CmdBlk, handle);
 
 	struct sg_io_hdr io_hdr;
@@ -376,13 +356,8 @@ int ody_scsi_close_cmd(int fd, scsi_handle_t handle)
 	}
 	if ((io_hdr.info & SG_INFO_OK_MASK) != SG_INFO_OK) {
 		if (io_hdr.sb_len_wr > 0) {
-			int k;
-			printf("get close sense data: ");
-			for (k = 0; k < io_hdr.sb_len_wr; ++k) {
-				if ((k > 0) && (0 == (k % 10)))
-					printf("\n  ");
-				printf("0x%02x ", sense_buffer[k]);
-			}
+			fprintf(stderr,"get close sense data: ");
+			DUMPBUF(sense_buffer, io_hdr.sb_len_wr);
 		}
 		perror("close file handle error");
 		return -1;

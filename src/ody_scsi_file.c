@@ -6,9 +6,12 @@
 #include "ody_scsi_file.h"
 #include "ody_scsi_pt.h"
 
+static char ody_scsi_dev_conf [1024];
+static int ody_scsi_dev_fd =-1;
+
 int initlib(char * devfilename)
 {
-	if( ody_scsi_dev_fd >0){
+	if( ody_scsi_dev_fd >=0){
 		return 0;
 	}
 	ody_scsi_dev_fd = open (devfilename, O_RDWR);
