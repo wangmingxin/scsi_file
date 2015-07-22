@@ -47,8 +47,6 @@ int ody_scsi_get_taskid(int fd)
 
 	while (((res = ioctl(fd, SG_IO, &io_hdr)) < 0) && (EINTR == errno)) ;
 	if (res < 0) {
-		if (ENOMEM == errno)
-			return -2;
 		perror("reading (SG_IO) on sg device, error");
 		return -1;
 	}
@@ -59,10 +57,9 @@ int ody_scsi_get_taskid(int fd)
 		DUMPBUF(sense_buffer, io_hdr.sb_len_wr);
 
         }
-	perror("get taskid error");
 	return -1;
     }else {  /* output result if it is available */
-	return buff[0] << 24 | buff[1] << 16 | buff[2] << 8 | buff[3];
+	return (uint32_t)buff[0] << 24 | (uint32_t)buff[1] << 16 | buff[2] << 8 | buff[3];
     }
 }
 int ody_scsi_get_taskret(int fd,int taskid, void * buff, int buflen)
@@ -189,8 +186,6 @@ int ody_scsi_read_cmd(int fd, scsi_handle_t handle, void * buf, off64_t pos, int
 	io_hdr.pack_id = 0;
 	while (((res = ioctl(fd, SG_IO, &io_hdr)) < 0) && (EINTR == errno));
 	if (res < 0) {
-		if (ENOMEM == errno)
-			return -2;
 		perror("reading (SG_IO) on sg device, error");
 		return -1;
 	}

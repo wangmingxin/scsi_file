@@ -11,12 +11,14 @@ static int ody_scsi_dev_fd =-1;
 
 int initlib(char * devfilename)
 {
+	fc_errno = 0;
 	if( ody_scsi_dev_fd >=0){
 		return 0;
 	}
 	ody_scsi_dev_fd = open (devfilename, O_RDWR);
 	if(ody_scsi_dev_fd < 0){
 		perror("open error");
+		fc_errno = FC_ERR_INITLIB_OPENFILE;
 		return -1;
 	}
 
@@ -27,20 +29,20 @@ fc_file_t * fc_open(const char *pathname, int flag, mode_t mode)
 		
 	fc_file_t *file = calloc(sizeof (fc_file_t),1);
 	if(file == NULL){
-		perror("calloc error");
+		fc_errno = FC_ERR_NO_MEMORY;
 		return NULL;
 	}
 	
 	int taskid = ody_scsi_get_taskid(ody_scsi_dev_fd);
 	if(taskid <=0){
-		printf("get taskid error, taskid=%d\n",taskid);
+		fc_errno = FC_ERR_GET_TASKID;
 		free(file);
 		return NULL;
 	}
 	
 	file->scsi_handle = ody_scsi_open_file(ody_scsi_dev_fd,pathname, taskid);
 	if(file->scsi_handle <= 0){
-		perror("ody_scsi_open_file error");
+		fc_errno = FC_ERR_OPENFILE;
 		free(file);
 		return NULL;
 	}	
@@ -72,6 +74,7 @@ off64_t fc_lseek(fc_file_t * file, int64_t offset, int whence)
 {
 	off64_t pos;
 	if(file == NULL){
+		fc_errno = FC_ERR_NULLFILE;
 		return -1;
 	}
 	switch(whence){
@@ -87,6 +90,7 @@ off64_t fc_lseek(fc_file_t * file, int64_t offset, int whence)
 	} 
 
 	if(pos > SCSI_FILE_MAX_LEN){
+		fc_errno = FC_ERR_FILELEN_TOOLARGE;
 		perror("fc_lseek exceed SCSI_FILE_MAX_LEN");
 		return -1;
 	}
@@ -103,6 +107,7 @@ int fc_read(fc_file_t *file, void *buf, size_t count)
 	int read_count=count;
 	int ret = 0;
 	if(file == NULL){
+		fc_errno = FC_ERR_NULLFILE;
 		return -1;
 	}
 
@@ -119,6 +124,7 @@ int fc_read(fc_file_t *file, void *buf, size_t count)
 		file->pos += read_count;	
 		return read_count;
 	}else{
+		fc_errno = FC_ERR_READ;
 		return -1;
 	}
 	
@@ -128,10 +134,12 @@ int fc_write(fc_file_t *file, const void *buf, size_t count)
 	int write_count=count;
 	int ret = 0;
 	if(file == NULL){
+		fc_errno = FC_ERR_NULLFILE;
 		return -1;
 	}
 
 	if(file->pos  >= SCSI_FILE_MAX_LEN ){
+		fc_errno = FC_ERR_FILELEN_TOOLARGE;
 		perror("fc_write exceed the SCSI_FILE_MAX_LEN");
 		return -1;
 	} 
@@ -145,6 +153,7 @@ int fc_write(fc_file_t *file, const void *buf, size_t count)
 		}
 		return write_count;
 	}else{
+		fc_errno = FC_ERR_WRITE;
 		return -1;
 	}
 	
@@ -154,6 +163,7 @@ int fc_pread(fc_file_t *file, void *buf, size_t count, int64_t offset)
 	int read_count=count;
 	int ret = 0;
 	if(file == NULL){
+		fc_errno = FC_ERR_NULLFILE;
 		return -1;
 	}
 
@@ -167,6 +177,7 @@ int fc_pread(fc_file_t *file, void *buf, size_t count, int64_t offset)
 		file->pos = offset+read_count;	
 		return read_count;
 	}else{
+		fc_errno = FC_ERR_READ;
 		return -1;
 	}
 }
@@ -175,10 +186,12 @@ int fc_pwrite(fc_file_t *file, const void *buf, size_t count, int64_t offset)
 	int write_count=count;
 	int ret = 0;
 	if(file == NULL){
+		fc_errno = FC_ERR_NULLFILE;
 		return -1;
 	}
 
 	if(offset  >= SCSI_FILE_MAX_LEN ){
+		fc_errno = FC_ERR_FILELEN_TOOLARGE;
 		perror("fc_write exceed the SCSI_FILE_MAX_LEN");
 		return -1;
 	} 
@@ -192,13 +205,17 @@ int fc_pwrite(fc_file_t *file, const void *buf, size_t count, int64_t offset)
 		}
 		return write_count;
 	}else{
+		fc_errno = FC_ERR_WRITE;
 		return -1;
 	}
 }
+//return 0 
+//or return -1 when failed
 int fc_truncate(const char *pathname, int64_t length)
 {
 	return ody_scsi_truncate_cmd(ody_scsi_dev_fd, pathname, length);		
 }
+
 int fc_fsync(fc_file_t * file)
 {
 	return 0;
