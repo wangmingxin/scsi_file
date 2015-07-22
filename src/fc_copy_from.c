@@ -27,7 +27,7 @@ int main(int argc, char * argv[])
 		usage();
 		return -1;
 	}
-	int to = -1;
+	FILE *to = NULL;
 	
 	if(initlib(argv[1])<0){
 		perror("initlib error\n");
@@ -40,9 +40,9 @@ int main(int argc, char * argv[])
 		return -1;
 	}
 
-	to = open(argv[3],O_RDWR|O_CREAT);
+	to = fopen(argv[3],"w+");
 
-	if(to <0){
+	if(to == NULL){
 		perror("open localfile to write error");
 	}
 	
@@ -50,11 +50,11 @@ int main(int argc, char * argv[])
 	int read_size=0;
 	
 	while((read_size=fc_read(file, buff, sizeof(buff)))>0){
-		write(to, buff, read_size);
+		fwrite( buff, read_size,1,to);
 	}
 	
 	print_fc_file(file);
-	close(to);
+	fclose(to);
 
 	return fc_close(file);
 }

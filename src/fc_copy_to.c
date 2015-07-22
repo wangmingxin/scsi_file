@@ -15,8 +15,8 @@ static void print_fc_file(fc_file_t *file)
 {
 	printf("open_flag = %d\n",file->open_flag);
 	printf("scsi_handle = %d\n",file->scsi_handle);
-	printf("length = %lld\n",file->file_length);
-	printf("curpos = %lld\n",file->pos);
+	printf("length = %llu\n",file->file_length);
+	printf("curpos = %llu\n",file->pos);
 }
 
 int main(int argc, char * argv[])
@@ -27,7 +27,7 @@ int main(int argc, char * argv[])
 		usage();
 		return -1;
 	}
-	int from = -1;
+	FILE* from = NULL;
 	
 	if(initlib(argv[1])<0){
 		perror("initlib error\n");
@@ -40,7 +40,7 @@ int main(int argc, char * argv[])
 		return -1;
 	}
 
-	from = open(argv[2],O_RDWR);
+	from = open(argv[2],"r+");
 
 	if(from <0){
 		perror("open localfile to read error");

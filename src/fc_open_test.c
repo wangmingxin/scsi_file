@@ -17,8 +17,8 @@ void print_fc_file(fc_file_t *file)
 {
 	printf("open_flag = %d\n",file->open_flag);
 	printf("scsi_handle = %d\n",file->scsi_handle);
-	printf("length = %lld\n",file->file_length);
-	printf("curpos = %lld\n",file->pos);
+	printf("length = %llu\n",file->file_length);
+	printf("curpos = %llu\n",file->pos);
 }
 
 int

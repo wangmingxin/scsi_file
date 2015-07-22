@@ -2,7 +2,7 @@ CC = gcc
 LD = gcc
 AR = ar
 EXECS = fc_open fc_copy fc_copyto fc_truncate 
-LARGE_FILE_FLAGS = -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
+LARGE_FILE_FLAGS = -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGE_FILES
 DEBUG_FLAGS = -DDEBUG
 
 CCBITS32	= -maix32
@@ -10,22 +10,27 @@ CCBITS64	= -maix64
 LDBITS32	= -b32
 LDBITS64	= -b64
 
-CFLAGS = -g -O2 -W -Wall -iquote ../include -D_REENTRANT $(LARGE_FILE_FLAGS) $(DEBUG_FLAGS)
-LDFLAGS = -lsgutils2 -L . -lscsifile
+CFLAGS = -fPIC -g -O2 -W -Wall -iquote ../include -D_REENTRANT $(LARGE_FILE_FLAGS) $(DEBUG_FLAGS)
+LDFLAGS = -L . -lscsifile
 MYLIB = libscsifile.a
 MYLIB64 = libscsifile64.a
+MYDYNALIB = libscsifile.so
 LIBOBJS = ody_scsi_file.o ody_scsi_ptcmd.aix.o
 LIBOBJS64 = ody_scsi_file64.o ody_scsi_ptcmd.aix64.o
-all: $(EXECS) $(MYLIB) $(MYLIB64)
+all: $(EXECS) $(MYLIB) $(MYLIB64) $(MYDYNALIB)
 clean:
 	/bin/rm -f *.o $(EXECS)  core
+$(MYDYNALIB): $(LIBOBJS)
+	$(LD) -shared -fPIC -o $@ $(LIBOBJS)
 $(MYLIB): $(LIBOBJS)
-	$(AR) -X64_32 -rv $@ $(LIBOBJS)
+	rm -rf $@
+	$(AR) -X32_64 -rv $@ $(LIBOBJS)
 ody_scsi_file64.o: ody_scsi_file.c
-	$(CC) $(CFLAGS) $(CCBITS64) -c $<
+	$(CC) -o $@ $(CFLAGS) $(CCBITS64) -c $<
 ody_scsi_ptcmd.aix64.o: ody_scsi_ptcmd.aix.c
-	$(CC) $(CFLAGS) $(CCBITS64) -c $<
+	$(CC) -o $@ $(CFLAGS) $(CCBITS64) -c $<
 $(MYLIB64): $(LIBOBJS64)
+	rm -rf $@
 	$(AR) -X64 -rv $@ $(LIBOBJS64)
 fc_open: fc_open_test.o $(MYLIB)
 	$(LD) -o $@ $(LDFLAGS) $^

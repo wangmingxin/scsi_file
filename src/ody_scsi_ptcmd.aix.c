@@ -235,7 +235,7 @@ unsigned long long  ody_scsi_getsize_cmd(int fd, scsi_handle_t handle)
 		return -1;
 	}
 
-	return (uint64_t) buff[0] << 56 | (uint64_t) buff[1] << 48 | (uint64_t) buff[2] << 40 | (uint64_t) buff[3]<<32 | buff[4]<<24 |buff[5]<<16 |buff[6]<<8 |buff[7];
+	return (uint64_t) buff[0] << 56 | (uint64_t) buff[1] << 48 | (uint64_t) buff[2] << 40 | (uint64_t) buff[3]<<32 | (uint64_t)buff[4]<<24 |(uint64_t)buff[5]<<16 |(uint64_t)buff[6]<<8 |buff[7];
 }
 int ody_scsi_truncate_cmd(int fd, char* filename, unsigned long long length)
 {
