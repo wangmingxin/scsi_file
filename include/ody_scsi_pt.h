@@ -12,6 +12,7 @@ extern "C" {
 #define DSJ_CMD_TYPE_WRITE_BYHANDLE		0x06	//write方向,写文件
 #define DSJ_CMD_TYPE_TRUNCATE_BYFILENAME	0x07	//write方向,截断文件
 #define DSJ_CMD_TYPE_GETFILESIZE_BYHANDLEE	0x08	//read方向,获取文件长度
+#define DSJ_CMD_TYPE_UNLINK_BYFILENAME		0x09	//write方向,unlink file
 
 #define MK_CMD_GETTASKID16(cmd) \
 cmd[0] = 0x88;			\
@@ -158,6 +159,18 @@ cmd[13] = 512  &0xff;			\
 cmd[14] = 0x00;		\
 cmd[15] = 0x00;			
 
+#define MK_CMD_UNLINK16(cmd ) \
+cmd[0] = 0x8a;			\
+cmd[1] = 0x00;			\
+cmd[2] = DSJ_CMD_TYPE_UNLINK_BYFILENAME;	\
+cmd[3] = 0;			\
+cmd[10] = 512 >> 24 &0xff;		\
+cmd[11] = 512 >> 16 &0xff;		\
+cmd[12] = 512 >> 8 &0xff;		\
+cmd[13] = 512  &0xff;			\
+cmd[14] = 0x00;		\
+cmd[15] = 0x00;			
+
 #ifdef DEBUG
 #define PRINTCMD16(cmd) \
 printf("%02x",cmd[0]); \
@@ -201,6 +214,7 @@ int ody_scsi_write_cmd(int fd, scsi_handle_t handle,off64_t pos, const void * bu
 unsigned long long  ody_scsi_getsize_cmd(int fd, scsi_handle_t handle);
 int ody_scsi_truncate_cmd(int fd, char* filename, unsigned long long length);
 int ody_scsi_close_cmd(int fd, scsi_handle_t handle);
+int ody_scsi_unlink_cmd(int fd, char* filename);
 
 #ifdef __cplusplus
 }

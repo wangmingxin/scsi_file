@@ -23,8 +23,8 @@ clean:
 	/bin/rm -f *.o $(EXECS)  core
 $(MYDYNALIB): $(LIBOBJS)
 	$(LD) -shared -fPIC -o $@ $(LIBOBJS)
-$(MYDYNALIB): $(LIBOBJS64)
-	$(LD) -shared -fPIC -o $@ $(LIBOBJS64)
+$(MYDYNALIB64): $(LIBOBJS64)
+	$(LD) -maix64 -shared -fPIC -o $@ $(LIBOBJS64)
 $(MYLIB): $(LIBOBJS)
 	rm -rf $@
 	$(AR) -X32_64 -rv $@ $(LIBOBJS)

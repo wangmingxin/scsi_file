@@ -18,8 +18,8 @@ extern "C" {
 #define FC_ERR_NO_MEMORY 		65538 	/*memory not enough*/
 #define FC_ERR_GET_TASKID 		65539 	/*get taskid error*/
 #define FC_ERR_OPENFILE 		65540 	/*open file error*/
-#define FC_ERR_SEEK 			65541 	/*open file error*/
-#define FC_ERR_NULLFILE 		65542 	/*open file error*/
+#define FC_ERR_SEEK 			65541 	/*seek file error*/
+#define FC_ERR_NULLFILE 		65542 	/*null file error*/
 #define FC_ERR_READ 			65543 	/*read file error*/
 #define FC_ERR_FILELEN_TOOLARGE 	65544 	/*file length too large*/
 #define FC_ERR_WRITE 			65545 	/*write file error*/
@@ -70,6 +70,7 @@ int fc_pwrite(fc_file_t *, const void *buf, size_t count, int64_t offset);
 //or return -1 when failed
 int fc_truncate(const char *pathname, int64_t length);
 int fc_fsync(fc_file_t *);
+int fc_remove(const char *pathname);
 
 
 

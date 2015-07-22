@@ -326,6 +326,45 @@ int ody_scsi_truncate_cmd(int fd, char* filename, unsigned long long length)
 	return 0;	
 }
 
+int ody_scsi_unlink_cmd(int fd, char* filename)
+{
+
+	unsigned char CmdBlk [16] ;	
+	unsigned char buff [512] ;	
+	unsigned char sense_buffer[32];
+	MK_CMD_UNLINK16(CmdBlk);
+	PRINTCMD16(CmdBlk);
+
+	struct sg_io_hdr io_hdr;
+	memset(&io_hdr, 0, sizeof(struct sg_io_hdr));
+	memset(buff, 0, sizeof(buff));
+	memset(sense_buffer, 0, sizeof(sense_buffer));
+	snprintf((char*)buff, sizeof(buff)-1,"%s", filename);
+
+	io_hdr.interface_id = 'S';
+	io_hdr.cmd_len = sizeof(CmdBlk) ;
+	io_hdr.cmdp = CmdBlk ;
+	io_hdr.dxfer_direction = SG_DXFER_TO_DEV;
+	io_hdr.dxfer_len = sizeof(buff);
+	io_hdr.dxferp = buff;
+	io_hdr.mx_sb_len = sizeof(sense_buffer);
+	io_hdr.sbp = sense_buffer;
+	io_hdr.timeout = DEF_TIMEOUT;
+	io_hdr.pack_id = 0;
+	if (ioctl(fd, SG_IO, &io_hdr) < 0) {
+		perror("ody_scsi_unlink_cmd  error");
+		return -1;
+	}
+	if ((io_hdr.info & SG_INFO_OK_MASK) != SG_INFO_OK) {
+		if (io_hdr.sb_len_wr > 0) {
+			fprintf(stderr,"get unlink sense data: ");
+			DUMPBUF(sense_buffer, io_hdr.sb_len_wr);
+		}
+		perror("unlink file error");
+		return -1;
+	}	
+	return 0;	
+}
 int ody_scsi_close_cmd(int fd, scsi_handle_t handle)
 {
 	unsigned char CmdBlk [16] ;	

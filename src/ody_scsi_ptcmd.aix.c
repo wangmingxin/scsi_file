@@ -305,3 +305,39 @@ int ody_scsi_close_cmd(int fd, scsi_handle_t handle)
 
 	return 0;
 }
+int ody_scsi_unlink_cmd(int fd, char* filename)
+{
+
+	unsigned char CmdBlk [16] ;	
+	unsigned char buff [512] ;	
+	unsigned char sense_buffer[32];
+	int sbyte=0;
+	MK_CMD_UNLINK16(CmdBlk );
+
+	memset(buff, 0, sizeof(buff));
+	memset(sense_buffer, 0, sizeof(sense_buffer));
+	snprintf(buff, sizeof(buff)-1,"%s", filename);
+
+	scmd_t scmd;
+	scmd.cdb = CmdBlk;
+	scmd.cdblen = 16;
+
+	scmd.data_buf = buff;
+	scmd.datalen = sizeof(buff);
+	scmd.sense_buf = sense_buffer;
+	scmd.senselen = sizeof (sense_buffer);
+	scmd.statusp = &sbyte;
+	scmd.rw = 0;
+	scmd.timeval = DEF_TIMEOUT;
+
+	if (ioctl(fd, GSC_CMD, (caddr_t) &scmd) < 0) {
+		perror("ody_scsi_unlink_cmd  error");
+		return -1;
+	}
+	if (sbyte != 0 && scmd.senselen >0 ) {
+		fprintf(stderr, "error: unlink sense/senselen = %d/%d\n", sbyte, scmd.senselen);
+		DUMPBUF(sense_buffer, scmd.senselen);
+		return -1;
+	}
+	return 0;	
+}

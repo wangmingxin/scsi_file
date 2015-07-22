@@ -220,3 +220,9 @@ int fc_fsync(fc_file_t * file)
 {
 	return 0;
 }
+//return 0 
+//or return -1 when failed
+int fc_remove(const char *pathname)
+{
+	return ody_scsi_unlink_cmd(ody_scsi_dev_fd, pathname);		
+}
