@@ -1,22 +1,34 @@
 CC = gcc
 LD = gcc
 AR = ar
-EXECS = fc_open fc_copy fc_copyto fc_truncate 
+EXECS = fc_open fc_copy fc_copyto fc_truncate fc_unlink
 LARGE_FILE_FLAGS = -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
 DEBUG_FLAGS = -DDEBUG
 
 CFLAGS = -fPIC -g -O2 -W -Wall -iquote ../include -D_REENTRANT $(LARGE_FILE_FLAGS) $(DEBUG_FLAGS)
+C32_FLAG = -m32
 LDFLAGS = -lsgutils2 -L . -lscsifile
 MYLIB = libscsifile.a
+MYLIB32 = libscsifile32.a
 MYDYNALIB = libscsifile.so
+MYDYNALIB32 = libscsifile32.so
 LIBOBJS = ody_scsi_file.o ody_scsi_ptcmd.linux.o
-all: $(EXECS) $(MYLIB) $(MYDYNALIB)
+LIBOBJS32 = ody_scsi_file32.o ody_scsi_ptcmd32.linux.o
+all: $(EXECS) $(MYLIB) $(MYDYNALIB) $(MYDYNALIB32)
 clean:
 	/bin/rm -f *.o $(EXECS)  core
 $(MYLIB): $(LIBOBJS)
 	$(AR) -rv $@ $(LIBOBJS)
+$(MYLIB32): $(LIBOBJS32)
+	$(AR) -rv $@ $(LIBOBJS32)
 $(MYDYNALIB): $(LIBOBJS)
 	$(LD) -shared -fPIC -o $@ $(LIBOBJS)
+ody_scsi_file32.o: ody_scsi_file.c
+	$(CC) $(C32_FLAG) $(CFLAGS) -o $@ -c $<
+ody_scsi_ptcmd32.linux.o: ody_scsi_ptcmd.linux.c
+	$(CC) $(C32_FLAG) $(CFLAGS) -o $@ -c $<
+$(MYDYNALIB32): $(LIBOBJS32)
+	$(LD) -shared -fPIC -m32 -o $@ $(LIBOBJS32)
 fc_open: fc_open_test.o $(MYLIB)
 	$(LD) -o $@  fc_open_test.o $(LDFLAGS)
 fc_copy: fc_copy_from.o $(MYLIB)
@@ -25,5 +37,11 @@ fc_copyto: fc_copy_to.o $(MYLIB)
 	$(LD) -o $@ $(LDFLAGS) $^
 fc_truncate: fc_truncate.o $(MYLIB)
 	$(LD) -o $@ $(LDFLAGS) $^
+fc_unlink: fc_unlink.o 
+	$(LD) -o $@ $(LDFLAGS) $^
 .c.o:
 	$(CC) $(CFLAGS) -c $<
+install:
+	cp *.a /mnt/hgfs/vmshare/file2scsi/linux
+	cp *.so /mnt/hgfs/vmshare/file2scsi/linux
+	cp ../include/ody_scsi_file.h /mnt/hgfs/vmshare/file2scsi/
