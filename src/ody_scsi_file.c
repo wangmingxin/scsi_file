@@ -32,6 +32,8 @@ int initlib(char * devfilename)
 		if(fc_test() < 0){
 			retry++;
 			sleep(1);
+		}else{
+			break;
 		}
 	}
 
