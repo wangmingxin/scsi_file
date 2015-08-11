@@ -357,7 +357,7 @@ int ody_scsi_test_cmd(int fd)
 	scmd.cdb = CmdBlk;
 	scmd.cdblen = 6;
 
-	scmd.data_buf = buff;
+	scmd.data_buf = NULL;
 	scmd.datalen = 0;
 	scmd.sense_buf = sense_buffer;
 	scmd.senselen = sizeof (sense_buffer);
