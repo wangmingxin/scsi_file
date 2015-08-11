@@ -398,3 +398,38 @@ int ody_scsi_close_cmd(int fd, scsi_handle_t handle)
 	}	
 	return 0;
 }
+int ody_scsi_test_cmd(int fd)
+{
+
+	unsigned char CmdBlk [6] ;	
+	unsigned char sense_buffer[32];
+	MK_CMD_TEST6(CmdBlk);
+
+	struct sg_io_hdr io_hdr;
+	memset(&io_hdr, 0, sizeof(struct sg_io_hdr));
+	memset(sense_buffer, 0, sizeof(sense_buffer));
+
+	io_hdr.interface_id = 'S';
+	io_hdr.cmd_len = sizeof(CmdBlk) ;
+	io_hdr.cmdp = CmdBlk ;
+	io_hdr.dxfer_direction = SG_DXFER_TO_DEV;
+	io_hdr.dxfer_len = 0;
+	io_hdr.dxferp = NULL;
+	io_hdr.mx_sb_len = sizeof(sense_buffer);
+	io_hdr.sbp = sense_buffer;
+	io_hdr.timeout = DEF_TIMEOUT;
+	io_hdr.pack_id = 0;
+	if (ioctl(fd, SG_IO, &io_hdr) < 0) {
+		perror("ody_scsi_test_cmd  error");
+		return -1;
+	}
+	if ((io_hdr.info & SG_INFO_OK_MASK) != SG_INFO_OK) {
+		if (io_hdr.sb_len_wr > 0) {
+			fprintf(stderr,"get test sense data: ");
+			DUMPBUF(sense_buffer, io_hdr.sb_len_wr);
+		}
+		perror("test unit error");
+		return -1;
+	}	
+	return 0;	
+}

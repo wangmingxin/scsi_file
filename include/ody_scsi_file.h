@@ -4,6 +4,7 @@
 extern "C" {
 #endif
 
+#define MAX_INITLIB_RETRY		3
 
 #define SCSI_FILE_OPEN_READONLY 	1
 #define SCSI_FILE_OPEN_WRITE		2

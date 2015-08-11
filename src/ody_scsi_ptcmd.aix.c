@@ -341,3 +341,38 @@ int ody_scsi_unlink_cmd(int fd, char* filename)
 	}
 	return 0;	
 }
+
+int ody_scsi_test_cmd(int fd)
+{
+
+	unsigned char CmdBlk [6] ;	
+	unsigned char sense_buffer[32];
+	int sbyte=0;
+
+	MK_CMD_TEST6(CmdBlk);
+
+	memset(sense_buffer, 0, sizeof(sense_buffer));
+
+	scmd_t scmd;
+	scmd.cdb = CmdBlk;
+	scmd.cdblen = 6;
+
+	scmd.data_buf = buff;
+	scmd.datalen = 0;
+	scmd.sense_buf = sense_buffer;
+	scmd.senselen = sizeof (sense_buffer);
+	scmd.statusp = &sbyte;
+	scmd.rw = 0;
+	scmd.timeval = DEF_TIMEOUT;
+
+	if (ioctl(fd, GSC_CMD, (caddr_t) &scmd) < 0) {
+		perror("ody_scsi_test_cmd  error");
+		return -1;
+	}
+	if (sbyte != 0 && scmd.senselen >0 ) {
+		fprintf(stderr, "error: test sense/senselen = %d/%d\n", sbyte, scmd.senselen);
+		DUMPBUF(sense_buffer, scmd.senselen);
+		return -1;
+	}
+	return 0;	
+}

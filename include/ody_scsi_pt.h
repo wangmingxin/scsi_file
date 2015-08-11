@@ -171,6 +171,14 @@ cmd[13] = 512  &0xff;			\
 cmd[14] = 0x00;		\
 cmd[15] = 0x00;			
 
+#define MK_CMD_TEST6(cmd) \
+cmd[0] = 0x00; \
+cmd[1] = 0x00; \
+cmd[2] = 0x00; \
+cmd[3] = 0x00; \
+cmd[4] = 0x00; \
+cmd[5] = 0x00; 
+
 #ifdef DEBUG
 #define PRINTCMD16(cmd) \
 printf("%02x",cmd[0]); \
@@ -215,6 +223,7 @@ unsigned long long  ody_scsi_getsize_cmd(int fd, scsi_handle_t handle);
 int ody_scsi_truncate_cmd(int fd, char* filename, unsigned long long length);
 int ody_scsi_close_cmd(int fd, scsi_handle_t handle);
 int ody_scsi_unlink_cmd(int fd, char* filename);
+int ody_scsi_test_cmd(int fd);
 
 #ifdef __cplusplus
 }

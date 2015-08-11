@@ -9,9 +9,15 @@
 static char ody_scsi_dev_conf [1024];
 static int ody_scsi_dev_fd =-1;
 
+static int fc_test()
+{
+	return ody_scsi_test_cmd(ody_scsi_dev_fd);
+}
+
 int initlib(char * devfilename)
 {
 	fc_errno = 0;
+	int retry=0;
 	if( ody_scsi_dev_fd >=0){
 		return 0;
 	}
@@ -20,6 +26,13 @@ int initlib(char * devfilename)
 		perror("open error");
 		fc_errno = FC_ERR_INITLIB_OPENFILE;
 		return -1;
+	}
+
+	while(retry < MAX_INITLIB_RETRY){	
+		if(fc_test() < 0){
+			retry++;
+			sleep(1);
+		}
 	}
 
 	return ody_scsi_dev_fd;
@@ -226,3 +239,5 @@ int fc_remove(const char *pathname)
 {
 	return ody_scsi_unlink_cmd(ody_scsi_dev_fd, pathname);		
 }
+
+
