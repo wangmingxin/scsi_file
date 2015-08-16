@@ -14,9 +14,9 @@ MYDYNALIB = libscsifile.so
 MYDYNALIB32 = libscsifile32.so
 LIBOBJS = ody_scsi_file.o ody_scsi_ptcmd.linux.o
 LIBOBJS32 = ody_scsi_file32.o ody_scsi_ptcmd32.linux.o
-all: $(EXECS) $(MYLIB) $(MYDYNALIB) $(MYDYNALIB32)
+all: $(EXECS) $(MYLIB) $(MYLIB32) $(MYDYNALIB) $(MYDYNALIB32)
 clean:
-	/bin/rm -f *.o $(EXECS)  core
+	/bin/rm -f *.o $(EXECS)  core *.a *.so
 $(MYLIB): $(LIBOBJS)
 	$(AR) -rv $@ $(LIBOBJS)
 $(MYLIB32): $(LIBOBJS32)
@@ -38,7 +38,7 @@ fc_copyto: fc_copy_to.o $(MYLIB)
 fc_truncate: fc_truncate.o $(MYLIB)
 	$(LD) -o $@ $(LDFLAGS) $^
 fc_unlink: fc_unlink.o 
-	$(LD) -o $@ $(LDFLAGS) $^
+	$(LD) -o $@  $^ $(LDFLAGS)
 .c.o:
 	$(CC) $(CFLAGS) -c $<
 install:

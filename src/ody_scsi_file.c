@@ -6,6 +6,9 @@
 #include "ody_scsi_file.h"
 #include "ody_scsi_pt.h"
 
+#define MAX_SCSI_TRANSFER_SIZE	128*1024
+#define MIN(a,b) 	((a)>(b))?(b):(a)
+
 static char ody_scsi_dev_conf [1024];
 static int ody_scsi_dev_fd =-1;
 
@@ -119,6 +122,8 @@ off64_t fc_lseek(fc_file_t * file, int64_t offset, int whence)
 
 int fc_read(fc_file_t *file, void *buf, size_t count)
 {
+	return fc_pread(file,buf,file->pos,count);
+/*
 	int read_count=count;
 	int ret = 0;
 	if(file == NULL){
@@ -143,9 +148,12 @@ int fc_read(fc_file_t *file, void *buf, size_t count)
 		return -1;
 	}
 	
+*/
 }
 int fc_write(fc_file_t *file, const void *buf, size_t count)
 {
+	return fc_pwrite(file,buf,file->pos,count);
+/*
 	int write_count=count;
 	int ret = 0;
 	if(file == NULL){
@@ -172,9 +180,11 @@ int fc_write(fc_file_t *file, const void *buf, size_t count)
 		return -1;
 	}
 	
+*/
 }
 int fc_pread(fc_file_t *file, void *buf, size_t count, int64_t offset)
 {
+	int readed_count=0;
 	int read_count=count;
 	int ret = 0;
 	if(file == NULL){
@@ -183,22 +193,33 @@ int fc_pread(fc_file_t *file, void *buf, size_t count, int64_t offset)
 	}
 
 	if(offset + count > file->file_length ){
-		read_count = file->file_length - offset;
+		count = file->file_length - offset;
 	} 
-	
-	ret = ody_scsi_read_cmd(ody_scsi_dev_fd,file->scsi_handle,buf, offset, read_count );
+	read_count = MIN(count, MAX_SCSI_TRANSFER_SIZE);
 
-	if(ret == 0){
-		file->pos = offset+read_count;	
-		return read_count;
-	}else{
-		fc_errno = FC_ERR_READ;
-		return -1;
+	while(read_count>0){
+
+		ret = ody_scsi_read_cmd(ody_scsi_dev_fd,file->scsi_handle,buf+readed_count, offset+readed_count, read_count );
+
+		if(ret == 0){
+			file->pos = offset+read_count;	
+			readed_count += read_count;
+		}else{
+			fc_errno = FC_ERR_READ;
+			if(readed_count >0){
+				return readed_count;
+			}else{
+				return -1;
+			}
+		}
+		read_count = MIN(count-readed_count, MAX_SCSI_TRANSFER_SIZE);
 	}
+	return readed_count;
 }
 int fc_pwrite(fc_file_t *file, const void *buf, size_t count, int64_t offset)
 {
-	int write_count=count;
+	int written_size=0;
+	int write_count= MIN(count, MAX_SCSI_TRANSFER_SIZE);
 	int ret = 0;
 	if(file == NULL){
 		fc_errno = FC_ERR_NULLFILE;
@@ -211,18 +232,25 @@ int fc_pwrite(fc_file_t *file, const void *buf, size_t count, int64_t offset)
 		return -1;
 	} 
 	
-	ret = ody_scsi_write_cmd(ody_scsi_dev_fd,file->scsi_handle,offset,buf, write_count );
+	while(write_count >0){
+		ret = ody_scsi_write_cmd(ody_scsi_dev_fd,file->scsi_handle,offset+written_size,buf+written_size, write_count );
 
-	if(ret == 0){
-		file->pos = offset+write_count;	
-		if(file->pos > file->file_length){
-			file->file_length=file->pos;
+		if(ret == 0){
+			written_size += write_count;
+			file->pos = offset+write_count;	
+			if(file->pos > file->file_length){
+				file->file_length=file->pos;
+			}
+		}else{
+			fc_errno = FC_ERR_WRITE;
+			if(written_size >0){
+				return written_size;
+			}else
+				return -1;
 		}
-		return write_count;
-	}else{
-		fc_errno = FC_ERR_WRITE;
-		return -1;
+		write_count= MIN(count-written_size,MAX_SCSI_TRANSFER_SIZE);
 	}
+	return written_size;
 }
 //return 0 
 //or return -1 when failed
