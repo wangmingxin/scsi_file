@@ -122,7 +122,7 @@ off64_t fc_lseek(fc_file_t * file, int64_t offset, int whence)
 
 int fc_read(fc_file_t *file, void *buf, size_t count)
 {
-	return fc_pread(file,buf,file->pos,count);
+	return fc_pread(file,buf,count,file->pos);
 /*
 	int read_count=count;
 	int ret = 0;
@@ -152,7 +152,7 @@ int fc_read(fc_file_t *file, void *buf, size_t count)
 }
 int fc_write(fc_file_t *file, const void *buf, size_t count)
 {
-	return fc_pwrite(file,buf,file->pos,count);
+	return fc_pwrite(file,buf,count, file->pos);
 /*
 	int write_count=count;
 	int ret = 0;
