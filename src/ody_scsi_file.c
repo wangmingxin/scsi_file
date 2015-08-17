@@ -45,7 +45,7 @@ int initlib(char * devfilename)
 fc_file_t * fc_open(const char *pathname, int flag, mode_t mode)
 {
 		
-	fc_file_t *file = calloc(sizeof (fc_file_t),1);
+	fc_file_t *file = calloc(1,sizeof (fc_file_t));
 	if(file == NULL){
 		fc_errno = FC_ERR_NO_MEMORY;
 		return NULL;
@@ -202,11 +202,11 @@ int fc_pread(fc_file_t *file, void *buf, size_t count, int64_t offset)
 		ret = ody_scsi_read_cmd(ody_scsi_dev_fd,file->scsi_handle,buf+readed_count, offset+readed_count, read_count );
 
 		if(ret == 0){
-			file->pos = offset+read_count;	
 			readed_count += read_count;
 		}else{
 			fc_errno = FC_ERR_READ;
 			if(readed_count >0){
+				file->pos = offset+readed_count;	
 				return readed_count;
 			}else{
 				return -1;
@@ -214,6 +214,7 @@ int fc_pread(fc_file_t *file, void *buf, size_t count, int64_t offset)
 		}
 		read_count = MIN(count-readed_count, MAX_SCSI_TRANSFER_SIZE);
 	}
+	file->pos = offset+readed_count;	
 	return readed_count;
 }
 int fc_pwrite(fc_file_t *file, const void *buf, size_t count, int64_t offset)
@@ -237,18 +238,24 @@ int fc_pwrite(fc_file_t *file, const void *buf, size_t count, int64_t offset)
 
 		if(ret == 0){
 			written_size += write_count;
-			file->pos = offset+write_count;	
-			if(file->pos > file->file_length){
-				file->file_length=file->pos;
-			}
 		}else{
 			fc_errno = FC_ERR_WRITE;
 			if(written_size >0){
+				file->pos = offset+written_size;	
+				if(file->pos > file->file_length){
+					file->file_length=file->pos;
+				}
 				return written_size;
-			}else
+			}else{
 				return -1;
+			}
 		}
 		write_count= MIN(count-written_size,MAX_SCSI_TRANSFER_SIZE);
+	}
+
+	file->pos = offset+written_size;	
+	if(file->pos > file->file_length){
+		file->file_length=file->pos;
 	}
 	return written_size;
 }

@@ -11,7 +11,7 @@ static void usage()
 	return ;
 }
 
-static void print_fc_file(fc_file_t *file)
+void print_fc_file(fc_file_t *file)
 {
 	printf("open_flag = %d\n",file->open_flag);
 	printf("scsi_handle = %d\n",file->scsi_handle);
@@ -40,22 +40,25 @@ int main(int argc, char * argv[])
 		return -1;
 	}
 
-	from = open(argv[2],"r+");
+	from = open(argv[2],O_RDONLY);
 
 	if(from <0){
 		perror("open localfile to read error");
 	}
 	
-	char buff[64*1024];
+	char buff[256*1024];
 	int writesize=0;
 	int read_size=0;
 	
-	while((read_size=read(from, buff, sizeof(buff)))>0){
+	lseek(from,0,SEEK_SET);
+	read_size=read(from, buff, sizeof(buff));
+	while(read_size>0){
 		writesize = fc_write(file, buff, read_size);
 		if(writesize <=0){
 			fprintf(stderr,"fc_write writesize=%d \n",writesize);
 			break;
 		}
+	read_size=read(from, buff, sizeof(buff));
 	}
 	
 	print_fc_file(file);

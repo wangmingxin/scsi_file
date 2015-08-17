@@ -5,7 +5,7 @@ EXECS = fc_open fc_copy fc_copyto fc_truncate fc_unlink
 LARGE_FILE_FLAGS = -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
 DEBUG_FLAGS = -DDEBUG
 
-CFLAGS = -fPIC -g -O2 -W -Wall -iquote ../include -D_REENTRANT $(LARGE_FILE_FLAGS) $(DEBUG_FLAGS)
+CFLAGS = -fPIC -g -O -W -Wall -iquote ../include -D_REENTRANT $(LARGE_FILE_FLAGS) $(DEBUG_FLAGS)
 C32_FLAG = -m32
 LDFLAGS = -lsgutils2 -L . -lscsifile
 MYLIB = libscsifile.a
@@ -14,7 +14,8 @@ MYDYNALIB = libscsifile.so
 MYDYNALIB32 = libscsifile32.so
 LIBOBJS = ody_scsi_file.o ody_scsi_ptcmd.linux.o
 LIBOBJS32 = ody_scsi_file32.o ody_scsi_ptcmd32.linux.o
-all: $(EXECS) $(MYLIB) $(MYLIB32) $(MYDYNALIB) $(MYDYNALIB32)
+#all: $(EXECS) $(MYLIB) $(MYLIB32) $(MYDYNALIB) $(MYDYNALIB32)
+all: $(EXECS) $(MYLIB) 
 clean:
 	/bin/rm -f *.o $(EXECS)  core *.a *.so
 $(MYLIB): $(LIBOBJS)
@@ -33,8 +34,8 @@ fc_open: fc_open_test.o $(MYLIB)
 	$(LD) -o $@  fc_open_test.o $(LDFLAGS)
 fc_copy: fc_copy_from.o $(MYLIB)
 	$(LD) -o $@ $(LDFLAGS) $^
-fc_copyto: fc_copy_to.o $(MYLIB)
-	$(LD) -o $@ $(LDFLAGS) $^
+fc_copyto: fc_copy_to.o 
+	$(LD) -o $@ $^ $(LDFLAGS)
 fc_truncate: fc_truncate.o $(MYLIB)
 	$(LD) -o $@ $(LDFLAGS) $^
 fc_unlink: fc_unlink.o 

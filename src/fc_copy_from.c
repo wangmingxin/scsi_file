@@ -46,7 +46,7 @@ int main(int argc, char * argv[])
 		perror("open localfile to write error");
 	}
 	
-	char buff[64*1024];
+	char buff[256*1024];
 	int read_size=0;
 	
 	while((read_size=fc_read(file, buff, sizeof(buff)))>0){
