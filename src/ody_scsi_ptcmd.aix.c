@@ -8,7 +8,7 @@
 #include "ody_scsi_file.h"
 #include "ody_scsi_pt.h"
 
-#define DEF_TIMEOUT 	120		/* 20000 millisecs == 20 seconds */
+#define DEF_TIMEOUT 	1200		/* 20000 millisecs == 20 seconds */
 
 static void DUMPBUF(unsigned char *buf, int buflen)
 {

@@ -43,6 +43,7 @@ typedef struct fc_file fc_file_t;
 //failed: <0,set fc_errno
 */
 extern int initlib(char * filename);
+extern void fclibclose();
 
 /*
 //打开目标文件，返回一个目标文件的结构指针

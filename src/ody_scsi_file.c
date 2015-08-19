@@ -17,6 +17,14 @@ static int fc_test()
 	return ody_scsi_test_cmd(ody_scsi_dev_fd);
 }
 
+void fclibclose()
+{
+	if( ody_scsi_dev_fd >=0){
+		close(ody_scsi_dev_fd);
+		ody_scsi_dev_fd = -1;
+	}
+}
+
 int initlib(char * devfilename)
 {
 	fc_errno = 0;
