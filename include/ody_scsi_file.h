@@ -37,38 +37,55 @@ struct fc_file {
 } ;
 typedef struct fc_file fc_file_t;
 
+/*
 //初始化库，读取target设备配置
 //successful:return 0 
 //failed: <0,set fc_errno
+*/
 extern int initlib(char * filename);
 
+/*
 //打开目标文件，返回一个目标文件的结构指针
 //successful: return fc_file_t *
 //failed :return NULL ,and set fc_errno
+*/
 extern fc_file_t * fc_open(const char *pathname, int flags, mode_t mode);
 
+/*
 //关闭文件
+//*/
 extern int fc_close(fc_file_t *);
 
+/*
 //文件读写定位
 //return the current pos
 //failed :return -1, and set fc_errno
+//*/
 off64_t fc_lseek(fc_file_t *, int64_t offset, int whence);
+/*
 //return read count
 //or return -1 and set fc_errno
+//*/
 int fc_read(fc_file_t *, void *buf, size_t count);
-
+/*
 //return write count
 //or return -1 and set fc_errno
+//*/
 int fc_write(fc_file_t *, const void *buf, size_t count);
+/*
 //return read count
 //or return -1 and set fc_errno
+//*/
 int fc_pread(fc_file_t *, void *buf, size_t count, int64_t offset);
+/*
 //return write count
 //or return -1 and set fc_errno
+*/
 int fc_pwrite(fc_file_t *, const void *buf, size_t count, int64_t offset);
+/*
 //return 0 
 //or return -1 when failed
+//*/
 int fc_truncate(const char *pathname, int64_t length);
 int fc_fsync(fc_file_t *);
 int fc_remove(const char *pathname);
