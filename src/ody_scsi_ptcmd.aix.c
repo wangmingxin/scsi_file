@@ -8,7 +8,7 @@
 #include "ody_scsi_file.h"
 #include "ody_scsi_pt.h"
 
-#define DEF_TIMEOUT 	1200		/* 20000 millisecs == 20 seconds */
+//#define DEF_TIMEOUT 	1200		/* 20000 millisecs == 20 seconds */
 
 static void DUMPBUF(unsigned char *buf, int buflen)
 {
@@ -39,7 +39,7 @@ int ody_scsi_get_taskid(int fd)
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
 	scmd.rw = 1;
-	scmd.timeval = DEF_TIMEOUT;
+	scmd.timeval = ody_scsi_timeout;
 
 	if (ioctl(fd, GSC_CMD, (caddr_t) &scmd) < 0) {
 		perror("GSC_CMD bad command");
@@ -73,7 +73,7 @@ int ody_scsi_get_taskret(int fd,int taskid, void * buff, int buflen)
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
 	scmd.rw = 1;
-	scmd.timeval = DEF_TIMEOUT;
+	scmd.timeval = ody_scsi_timeout;
 
 	if (ioctl(fd, GSC_CMD, (caddr_t) &scmd) < 0) {
 		perror("ody_scsi_open_file get task ret error");
@@ -111,7 +111,7 @@ scsi_handle_t ody_scsi_open_file(int fd, const char * filename, int taskid)
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
 	scmd.rw = 0;
-	scmd.timeval = DEF_TIMEOUT;
+	scmd.timeval = ody_scsi_timeout;
 
 	if (ioctl(fd, GSC_CMD, (caddr_t) &scmd) < 0) {
 		perror("ody_scsi_open_file setfilename error");
@@ -130,7 +130,7 @@ scsi_handle_t ody_scsi_open_file(int fd, const char * filename, int taskid)
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
 	scmd.rw = 1;
-	scmd.timeval = DEF_TIMEOUT;
+	scmd.timeval = ody_scsi_timeout;
 	if (ioctl(fd, GSC_CMD, (caddr_t) &scmd) < 0) {
 		perror("ody_scsi_open_file get taskret error");
 		return 0;
@@ -162,7 +162,7 @@ int ody_scsi_read_cmd(int fd, scsi_handle_t handle, void * buf, off64_t pos, int
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
 	scmd.rw = 1;
-	scmd.timeval = DEF_TIMEOUT;
+	scmd.timeval = ody_scsi_timeout;
 
 	while (((res = ioctl(fd, GSC_CMD, (caddr_t)&scmd)) < 0) && (EINTR == errno));
 	if (res < 0) {
@@ -193,7 +193,7 @@ int ody_scsi_write_cmd(int fd, scsi_handle_t handle,off64_t pos, const void * bu
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
 	scmd.rw = 0;
-	scmd.timeval = DEF_TIMEOUT;
+	scmd.timeval = ody_scsi_timeout;
 
 	while (((res = ioctl(fd, GSC_CMD, (caddr_t)&scmd)) < 0) && (EINTR == errno));
 	if (res < 0) {
@@ -223,7 +223,7 @@ unsigned long long  ody_scsi_getsize_cmd(int fd, scsi_handle_t handle)
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
 	scmd.rw = 1;
-	scmd.timeval = DEF_TIMEOUT;
+	scmd.timeval = ody_scsi_timeout;
 
 	if (ioctl(fd, GSC_CMD, (caddr_t) &scmd) < 0) {
 		perror("ody_scsi_getsize_cmd taskret error");
@@ -260,7 +260,7 @@ int ody_scsi_truncate_cmd(int fd, char* filename, unsigned long long length)
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
 	scmd.rw = 0;
-	scmd.timeval = DEF_TIMEOUT;
+	scmd.timeval = ody_scsi_timeout;
 
 	if (ioctl(fd, GSC_CMD, (caddr_t) &scmd) < 0) {
 		perror("ody_scsi_truncate_cmd  error");
@@ -291,7 +291,7 @@ int ody_scsi_close_cmd(int fd, scsi_handle_t handle)
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
 	scmd.rw = 1;
-	scmd.timeval = DEF_TIMEOUT;
+	scmd.timeval = ody_scsi_timeout;
 
 	if (ioctl(fd, GSC_CMD, (caddr_t) &scmd) < 0) {
 		perror("ody_scsi_close_cmd  error");
@@ -328,7 +328,7 @@ int ody_scsi_unlink_cmd(int fd, char* filename)
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
 	scmd.rw = 0;
-	scmd.timeval = DEF_TIMEOUT;
+	scmd.timeval = ody_scsi_timeout;
 
 	if (ioctl(fd, GSC_CMD, (caddr_t) &scmd) < 0) {
 		perror("ody_scsi_unlink_cmd  error");
@@ -363,7 +363,7 @@ int ody_scsi_test_cmd(int fd)
 	scmd.senselen = sizeof (sense_buffer);
 	scmd.statusp = &sbyte;
 	scmd.rw = 0;
-	scmd.timeval = DEF_TIMEOUT;
+	scmd.timeval = ody_scsi_timeout;
 
 	if (ioctl(fd, GSC_CMD, (caddr_t) &scmd) < 0) {
 		perror("ody_scsi_test_cmd  error");

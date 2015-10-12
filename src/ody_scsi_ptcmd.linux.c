@@ -11,7 +11,7 @@
 #include "ody_scsi_file.h"
 #include "ody_scsi_pt.h"
 
-#define DEF_TIMEOUT 	1200000		/* 20000 millisecs == 20 seconds */
+//#define DEF_TIMEOUT 	1200000		/* 20000 millisecs == 20 seconds */
 
 static void DUMPBUF(unsigned char *buf, int buflen)
 {
@@ -42,7 +42,7 @@ int ody_scsi_get_taskid(int fd)
 	io_hdr.dxferp = buff;
 	io_hdr.mx_sb_len = sizeof(sense_buffer);
 	io_hdr.sbp = sense_buffer;
-	io_hdr.timeout = DEF_TIMEOUT;
+	io_hdr.timeout = ody_scsi_timeout*1000;
 	io_hdr.pack_id = 0;
 
 	while (((res = ioctl(fd, SG_IO, &io_hdr)) < 0) && (EINTR == errno)) ;
@@ -80,7 +80,7 @@ int ody_scsi_get_taskret(int fd,int taskid, void * buff, int buflen)
 	io_hdr.dxferp = buff;
 	io_hdr.mx_sb_len = sizeof(sense_buffer);
 	io_hdr.sbp = sense_buffer;
-	io_hdr.timeout = DEF_TIMEOUT;
+	io_hdr.timeout = ody_scsi_timeout*1000;
 	io_hdr.pack_id = 0;
 	if (ioctl(fd, SG_IO, &io_hdr) < 0) {
 		perror("ody_scsi_open_file get task ret error");
@@ -120,7 +120,7 @@ scsi_handle_t ody_scsi_open_file(int fd, const char * filename, int taskid)
 	io_hdr.dxferp = buff;
 	io_hdr.mx_sb_len = sizeof(sense_buffer);
 	io_hdr.sbp = sense_buffer;
-	io_hdr.timeout = DEF_TIMEOUT;
+	io_hdr.timeout = ody_scsi_timeout*1000;
 	io_hdr.pack_id = 0;
 	if (ioctl(fd, SG_IO, &io_hdr) < 0) {
 		perror("ody_scsi_open_file setfilename error");
@@ -146,7 +146,7 @@ scsi_handle_t ody_scsi_open_file(int fd, const char * filename, int taskid)
 	io_hdr.dxferp = buff;
 	io_hdr.mx_sb_len = sizeof(sense_buffer);
 	io_hdr.sbp = sense_buffer;
-	io_hdr.timeout = DEF_TIMEOUT;
+	io_hdr.timeout = ody_scsi_timeout*1000;
 	io_hdr.pack_id = 0;
 	if (ioctl(fd, SG_IO, &io_hdr) < 0) {
 		perror("ody_scsi_open_file get task ret error");
@@ -182,7 +182,7 @@ int ody_scsi_read_cmd(int fd, scsi_handle_t handle, void * buf, off64_t pos, int
 	io_hdr.dxferp = buf;
 	io_hdr.mx_sb_len = sizeof(sense_buffer);
 	io_hdr.sbp = sense_buffer;
-	io_hdr.timeout = DEF_TIMEOUT;
+	io_hdr.timeout = ody_scsi_timeout*1000;
 	io_hdr.pack_id = 0;
 	while (((res = ioctl(fd, SG_IO, &io_hdr)) < 0) && (EINTR == errno));
 	if (res < 0) {
@@ -224,7 +224,7 @@ int ody_scsi_write_cmd(int fd, scsi_handle_t handle,off64_t pos, const void * bu
 	io_hdr.dxferp = buf;
 	io_hdr.mx_sb_len = sizeof(sense_buffer);
 	io_hdr.sbp = sense_buffer;
-	io_hdr.timeout = DEF_TIMEOUT;
+	io_hdr.timeout = ody_scsi_timeout*1000;
 	io_hdr.pack_id = 0;
 	while (((res = ioctl(fd, SG_IO, &io_hdr)) < 0) && (EINTR == errno));
 	if (res < 0) {
@@ -267,7 +267,7 @@ unsigned long long  ody_scsi_getsize_cmd(int fd, scsi_handle_t handle)
 	io_hdr.dxferp = buff;
 	io_hdr.mx_sb_len = sizeof(sense_buffer);
 	io_hdr.sbp = sense_buffer;
-	io_hdr.timeout = DEF_TIMEOUT;
+	io_hdr.timeout = ody_scsi_timeout*1000;
 	io_hdr.pack_id = 0;
 
 	if (ioctl(fd, SG_IO, &io_hdr) < 0) {
@@ -309,7 +309,7 @@ int ody_scsi_truncate_cmd(int fd, char* filename, unsigned long long length)
 	io_hdr.dxferp = buff;
 	io_hdr.mx_sb_len = sizeof(sense_buffer);
 	io_hdr.sbp = sense_buffer;
-	io_hdr.timeout = DEF_TIMEOUT;
+	io_hdr.timeout = ody_scsi_timeout*1000;
 	io_hdr.pack_id = 0;
 	if (ioctl(fd, SG_IO, &io_hdr) < 0) {
 		perror("ody_scsi_truncate_cmd  error");
@@ -349,7 +349,7 @@ int ody_scsi_unlink_cmd(int fd, char* filename)
 	io_hdr.dxferp = buff;
 	io_hdr.mx_sb_len = sizeof(sense_buffer);
 	io_hdr.sbp = sense_buffer;
-	io_hdr.timeout = DEF_TIMEOUT;
+	io_hdr.timeout = ody_scsi_timeout*1000;
 	io_hdr.pack_id = 0;
 	if (ioctl(fd, SG_IO, &io_hdr) < 0) {
 		perror("ody_scsi_unlink_cmd  error");
@@ -382,7 +382,7 @@ int ody_scsi_close_cmd(int fd, scsi_handle_t handle)
 	io_hdr.dxferp = buff;
 	io_hdr.mx_sb_len = sizeof(sense_buffer);
 	io_hdr.sbp = sense_buffer;
-	io_hdr.timeout = DEF_TIMEOUT;
+	io_hdr.timeout = ody_scsi_timeout*1000;
 	io_hdr.pack_id = 0;
 	if (ioctl(fd, SG_IO, &io_hdr) < 0) {
 		perror("ody_scsi_close_cmd  error");
@@ -417,7 +417,7 @@ int ody_scsi_test_cmd(int fd)
 	io_hdr.dxferp = NULL;
 	io_hdr.mx_sb_len = sizeof(sense_buffer);
 	io_hdr.sbp = sense_buffer;
-	io_hdr.timeout = DEF_TIMEOUT;
+	io_hdr.timeout = ody_scsi_timeout*1000;
 	io_hdr.pack_id = 0;
 	if (ioctl(fd, SG_IO, &io_hdr) < 0) {
 		perror("ody_scsi_test_cmd  error");

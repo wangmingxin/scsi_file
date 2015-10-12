@@ -8,9 +8,12 @@
 
 #define MAX_SCSI_TRANSFER_SIZE	128*1024
 #define MIN(a,b) 	((a)>(b))?(b):(a)
+#define DEF_TIMEOUT 	20		
 
 static char ody_scsi_dev_conf [1024];
 static int ody_scsi_dev_fd =-1;
+
+int ody_scsi_timeout = DEF_TIMEOUT;
 
 static int fc_test()
 {
@@ -23,6 +26,11 @@ void fclibclose()
 		close(ody_scsi_dev_fd);
 		ody_scsi_dev_fd = -1;
 	}
+}
+
+int fc_set_timeout(int timeout)
+{
+	ody_scsi_timeout = timeout;
 }
 
 int initlib(char * devfilename)

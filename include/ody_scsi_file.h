@@ -37,6 +37,7 @@ struct fc_file {
 } ;
 typedef struct fc_file fc_file_t;
 
+extern int ody_scsi_timeout;
 /*
 //初始化库，读取target设备配置
 //successful:return 0 
@@ -44,7 +45,10 @@ typedef struct fc_file fc_file_t;
 */
 extern int initlib(char * filename);
 extern void fclibclose();
-
+/*
+ * set timeout seconds
+ */
+extern int fc_set_timeout(int timeout);
 /*
 //打开目标文件，返回一个目标文件的结构指针
 //successful: return fc_file_t *
